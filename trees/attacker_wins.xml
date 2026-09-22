@@ -57,6 +57,24 @@ Action: pathTraversal
 Cost: 20
 Time: 2
 Role: Attacker</comment>
+									<node refinement="disjunctive">
+										<label>Web Recon Succesful</label>
+										<comment>Type: Attribute
+Role: Attacker</comment>
+										<node refinement="disjunctive">
+											<label>webRecon</label>
+											<comment>Type: Action
+Action: webRecon
+Cost: 5
+Time: 1
+Role: Attacker</comment>
+											<node refinement="disjunctive">
+												<label>Webserver Publicly Exposed</label>
+												<comment>Type: Attribute
+Role: Attacker</comment>
+											</node>
+										</node>
+									</node>
 									<node refinement="conjunctive">
 										<label>CGI scripts enabled</label>
 										<comment>Type: Attribute
@@ -78,7 +96,7 @@ Role: Attacker</comment>
 											<label>Update Apache</label>
 											<comment>Type: Action
 Action: updateApache
-Cost: 10
+Cost: 20
 Time: 20
 Role: Defender</comment>
 										</node>
@@ -151,14 +169,7 @@ Role: Attacker</comment>
 						<label>SOCKS5 Proxy Active</label>
 						<comment>Type: Attribute
 Role: Attacker</comment>
-						<node refinement="conjunctive" switchRole="yes">
-							<label>Deactivate SOCKS5 proxy</label>
-							<comment>Type: Action
-Action: deactivateSOCKS5Proxy
-Cost: 125
-Time: 1
-Role: Defender</comment>
-						</node>
+						
 					</node>
 				</node>
 			</node>

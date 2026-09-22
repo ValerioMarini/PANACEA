@@ -1,0 +1,2 @@
+# This __init__.py file is used to make the gui folder a package, allowing us to import modules from it. 
+# I chose to left it empty because it doesn't need to contain any code for the package to work.

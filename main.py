@@ -24,7 +24,7 @@ def main():
     tp.save_prism_model(prism_model, file)
     if args.props:
         # save the properties file in the same directory as the output file
-        path_output = "/".join(file.split("/")[:-1])
+        path_output = os.path.dirname(file)
         tp.save_prism_properties(os.path.join(path_output, "properties.props"))
 
 

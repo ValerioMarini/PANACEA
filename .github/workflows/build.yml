@@ -1,0 +1,50 @@
+name: PANACEA Build System
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: panacea-windows
+            pyinstaller_cmd: pyinstaller --noconsole --onefile --icon="assets/icon.ico" --name "PANACEA" panacea-gui.py
+          - os: ubuntu-latest
+            artifact_name: panacea-linux
+            pyinstaller_cmd: pyinstaller --noconsole --onefile --name "PANACEA" panacea-gui.py
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build Executable with PyInstaller
+        run: ${{ matrix.pyinstaller_cmd }}
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/PANACEA*

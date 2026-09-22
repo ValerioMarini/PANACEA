@@ -170,7 +170,8 @@ def plot_reward_figure(result_path):
     time_rewards = {'Att': [], 'Def': []}
     no_time_rewards = {'Att': [], 'Def': []}
     offset = 5
-    for experiment_name in filter(lambda x: "time" not in x, sorted(os.listdir(result_path))):
+    valid_experiments = [x for x in os.listdir(result_path) if "time" not in x and x.isdigit()]
+    for experiment_name in sorted(valid_experiments):
         ar_no_time, dr_no_time = compute_rewards(experiment_name)
         ar_time, dr_time = compute_rewards(f"{experiment_name}_time")
         to_plot['x'].append(int(experiment_name))
@@ -230,8 +231,11 @@ def parse_csv_file(file_path):
 
 def parse_defender_file(file_path):
     # get last element of each row if it's an integer
-    parsed_result = [int(row[-1]) for row in csv.reader(open(file_path), delimiter=",") if
-                     row and row[-1].isdigit()]
+    with open(file_path, "r") as f:
+        parsed_result = [int(row[-1]) for row in csv.reader(f, delimiter=",") if row and row[-1].isdigit()]
+
+    if not parsed_result:
+        return 0
     reward = sum(parsed_result) / len(parsed_result)
     return reward
 
@@ -266,7 +270,7 @@ def compute_rewards(experiment_name, result_path, prism_path):
     experiment_path = os.path.join(result_path, experiment_name)
     if "defender" in experiment_name:
         defender_reward = parse_defender_file(os.path.join(experiment_path, f"{experiment_name}.csv"))
-        return 0, defender_reward
+        return 0, defender_reward, False
     if os.path.exists(os.path.join(experiment_path, f"{experiment_name}.dot")):
         dot_path = os.path.join(experiment_path, f"{experiment_name}.dot")
         actions = parse_dot_file(dot_path)
