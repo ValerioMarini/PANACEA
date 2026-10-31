@@ -115,7 +115,7 @@ def get_prism_model(tree):
         text += ", " + ", ".join(att_actions)
     text += "\nendplayer\n"
 
-    # FIX: Aggiunto [passD]
+    # FIX: Added [passD].
     text += "player defender\n\tdefender, [passD]"
     def_actions = [f"[{a}]" for a in defender_actions.keys()]
     if def_actions:
@@ -188,7 +188,7 @@ def get_prism_model(tree):
                 text = f"{text[:-3]})"
             text += f" -> ({effect}'=2) & (sched'=1);\n"
             
-    text += "\n\t// Azione per passare il turno se non ci sono difese attivabili\n"
+    text += "\n\t// Action to pass the turn when no defenses can be activated\n"
     text += "\t[passD] sched=2 -> (sched'=1);\n"
         
     text += '\nendmodule\n\nrewards "attacker"\n\n'
@@ -207,7 +207,7 @@ def get_prism_model(tree):
 
     return text
 
-# FIX: Aggiunto parametro dinamico reward_type
+# FIX: Added the dynamic reward_type parameter.
 def get_prism_model_time(tree, reward_type="time"):
     """
     Converts a tree object into a PRISM model with time.
@@ -220,13 +220,13 @@ def get_prism_model_time(tree, reward_type="time"):
     text = "smg\n\nplayer attacker\n\tattacker, [wait1]"
     att_actions = []
     for a in attacker_actions.keys():
-        # FIX: Aggiunta esplicita dell'azione di fallimento al giocatore
+        # FIX: Explicitly add the failure action to the player.
         att_actions.extend([f"[start{a}]", f"[end{a}]", f"[fail{a}]"])
     if att_actions:
         text += ", " + ", ".join(att_actions)
     text += "\nendplayer\n"
 
-    # FIX: Aggiunto [passD] al giocatore difensore nel modello temporizzato
+    # FIX: Added [passD] to the defender player in the timed model.
     text += "player defender\n\tdefender, [wait2], [passD]"
     def_actions = []
     for a in defender_actions.keys():
@@ -322,18 +322,18 @@ def get_prism_model_time(tree, reward_type="time"):
             text += f"\n\t[start{a}] sched=2 & time2<0 & !progress{a} & !{goal}=1 & !{effect}=2{precon} -> (sched'=1) & (time2'={time}) & (progress{a}'=true);\n"
             text += f"\t[end{a}] sched=2 & time2=0 & progress{a} & !{goal}=1 & !{effect}=2{precon} -> (time2'=time2-1) & (progress{a}'=false) & ({effect}'=2);\n"
 
-    text += "\n\t// Azione per passare il turno se non ci sono difese attivabili\n"
+    text += "\n\t// Action to pass the turn when no defenses can be activated\n"
     text += "\t[passD] sched=2 & time2<0 -> (sched'=1);\n"
         
     text += '\nendmodule\n\nrewards "attacker"\n\n'
 
-    # FIX: Utilizzo di reward_type dinamico
+    # FIX: Use a dynamic reward_type.
     for a in attacker_actions.keys():
         text += f"\t[start{a}] true : {attacker_actions[a][reward_type]};\n"
         
     text += '\nendrewards\n\nrewards "defender"\n\n'
 
-    # FIX: Utilizzo di reward_type dinamico
+    # FIX: Use a dynamic reward_type.
     for a in actions_to_goal:
         text += f"\t[end{a}] true : {int(attacker_actions[a][reward_type])*10};\n"
     for a in defender_actions.keys():

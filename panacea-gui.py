@@ -217,7 +217,7 @@ class PanaceaApp(ctk.CTk):
         ctrl_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 20), pady=10)
 
         ctk.CTkLabel(ctrl_frame, text="Trade-off Analysis", font=ctk.CTkFont(size=20, weight="bold"), text_color=self.palette["text"]).pack(anchor="w", pady=(0, 10))
-        ctk.CTkLabel(ctrl_frame, text="Calcola separatamente\nCosto e Tempo per\nAttaccante e Difensore.", font=ctk.CTkFont(size=13), text_color=self.palette["muted"], justify="left").pack(anchor="w", pady=(0, 20))
+        ctk.CTkLabel(ctrl_frame, text="Calculate Cost and Time separately\nfor the Attacker and Defender.", font=ctk.CTkFont(size=13), text_color=self.palette["muted"], justify="left").pack(anchor="w", pady=(0, 20))
 
         self.btn_run_stats = ctk.CTkButton(
             ctrl_frame, text="Run Dual Analysis",
@@ -276,13 +276,13 @@ class PanaceaApp(ctk.CTk):
         temp_dir = tempfile.gettempdir()
 
         try:
-            # SPOSTIAMO LA LETTURA DELLA CHECKBOX IN CIMA
+            # Move the checkbox read to the top.
             use_time = self.time_analysis.get() == 1
 
             # 1. RUN COST ANALYSIS
             self.write_to_console("[STATS] Step 1/2: Calculating Attacker & Defender Cost...")
             
-            # IL FIX E' QUI: Valutiamo i costi sul modello temporizzato passando reward_type="cost"
+            # THE FIX IS HERE: Evaluate costs on the timed model by passing reward_type="cost".
             if use_time:
                 prism_model_cost = tp.get_prism_model_time(tree_to_run, reward_type="cost")
             else:
@@ -299,7 +299,7 @@ class PanaceaApp(ctk.CTk):
             # 2. RUN TIME ANALYSIS
             if use_time:
                 self.write_to_console("[STATS] Step 2/2: Calculating Attacker & Defender Time...")
-                # Di default get_prism_model_time usa reward_type="time"
+                # By default, get_prism_model_time uses reward_type="time".
                 prism_model_time = tp.get_prism_model_time(tree_to_run)
                 path_time = os.path.join(temp_dir, "panacea_time.prism")
                 tp.save_prism_model(prism_model_time, path_time)
@@ -310,7 +310,7 @@ class PanaceaApp(ctk.CTk):
                 res_times = self._execute_prism_multi(path_time, props_time, silent=True)
             else:
                 self.write_to_console("[STATS] Step 2/2: Time analysis skipped.")
-                # Usiamo NaN invece di 0.0 per interrompere correttamente il grafico
+                # Use NaN instead of 0.0 to correctly break the chart line.
                 res_times = (float('nan'), float('nan'))
 
             if res_costs is not None and res_times is not None:
@@ -356,7 +356,7 @@ class PanaceaApp(ctk.CTk):
             ax.tick_params(colors=self.palette["text"])
 
         if not self.run_history:
-            self.stats_ax_att_cost.text(0.5, 0.5, "Chart empty.\nModifica l'albero e avvia l'analisi.",
+            self.stats_ax_att_cost.text(0.5, 0.5, "Chart empty.\nModify the tree and run the analysis.",
                                         ha='center', va='center', color=self.palette["muted"], fontsize=10)
             for ax in [self.stats_ax_att_cost, self.stats_ax_def_cost,
                     self.stats_ax_att_time, self.stats_ax_def_time]:
@@ -371,7 +371,7 @@ class PanaceaApp(ctk.CTk):
             x = list(range(len(labels)))
 
             def _cap(values):
-                # Ignora gli 'inf' e i NaN per il calcolo del tetto massimo
+                # Ignore 'inf' and NaN values when calculating the upper limit.
                 finite = [v for v in values if v != float('inf') and not math.isnan(v)]
                 return max(finite) * 1.3 if finite else 100.0
 
@@ -381,7 +381,7 @@ class PanaceaApp(ctk.CTk):
             def_time_cap = _cap(def_times)
 
             def _plot_vals(values, cap):
-                # Preserva i NaN in modo che Matplotlib interrompa la linea
+                # Preserve NaN values so Matplotlib breaks the line.
                 return [v if (v != float('inf') and not math.isnan(v)) else cap if v == float('inf') else float('nan') for v in values]
 
             plot_att_costs = _plot_vals(att_costs, att_cost_cap)
@@ -392,13 +392,13 @@ class PanaceaApp(ctk.CTk):
             color_att = self.palette["chart_cost"]
             color_def = self.palette.get("chart_time", "#4fc3f7")
 
-            # Aggiungiamo sempre i panel dei costi
+            # Always include the cost panels.
             panels = [
                 (self.stats_ax_att_cost, plot_att_costs, att_costs, att_cost_cap, color_att, "Attacker Cost",  "o"),
                 (self.stats_ax_def_cost, plot_def_costs, def_costs, def_cost_cap, color_def, "Defender Cost",  "s"),
             ]
 
-            # Controlliamo se esiste almeno un valore temporale valido plottabile
+            # Check whether there is at least one valid, plottable time value.
             if any(t > 0 and not math.isnan(t) for t in att_times) or any(t > 0 and not math.isnan(t) for t in def_times):
                 panels.extend([
                     (self.stats_ax_att_time, plot_att_times, att_times, att_time_cap, color_att, "Attacker Time",  "o"),
@@ -419,7 +419,7 @@ class PanaceaApp(ctk.CTk):
                 ax.spines['right'].set_visible(False)
 
                 for i in range(len(x)):
-                    # Salta le annotazioni testuali se il valore è NaN
+                    # Skip text annotations when the value is NaN.
                     if math.isnan(raw_vals[i]):
                         continue
                         
@@ -558,7 +558,7 @@ class PanaceaApp(ctk.CTk):
             is_windows = platform.system() == "Windows"
             prism_bin_dir = os.path.dirname(prism_exec)
             
-            # FIX WINDOWS: Passaggio degli argomenti come singola stringa testuale con virgolette
+            # WINDOWS FIX: Pass arguments as a single quoted string.
             if is_windows:
                 command = f'"{prism_exec}" "{model_path}" "{props_path}"'
             else:
@@ -567,7 +567,7 @@ class PanaceaApp(ctk.CTk):
             process = subprocess.Popen(
                 command, 
                 stdout=subprocess.PIPE, 
-                stderr=subprocess.STDOUT,  # FIX: Unisce STDERR e STDOUT per catturare i crash Java
+                stderr=subprocess.STDOUT,  # FIX: Merge STDERR and STDOUT to capture Java crashes.
                 text=True, 
                 shell=is_windows, 
                 cwd=prism_bin_dir
@@ -615,7 +615,7 @@ class PanaceaApp(ctk.CTk):
             is_windows = platform.system() == "Windows"
             prism_bin_dir = os.path.dirname(prism_exec)
 
-            # FIX WINDOWS: Passaggio degli argomenti come singola stringa testuale con virgolette
+            # WINDOWS FIX: Pass arguments as a single quoted string.
             if is_windows:
                 command = f'"{prism_exec}" "{model_path}" "{props_path}"'
             else:
@@ -624,7 +624,7 @@ class PanaceaApp(ctk.CTk):
             process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # FIX: Unisce STDERR e STDOUT per catturare i crash Java
+                stderr=subprocess.STDOUT,  # FIX: Merge STDERR and STDOUT to capture Java crashes.
                 text=True,
                 shell=is_windows,
                 cwd=prism_bin_dir
