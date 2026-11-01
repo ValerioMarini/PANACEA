@@ -19,10 +19,10 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: panacea-windows
-            pyinstaller_cmd: pyinstaller --noconsole --onefile --icon="assets/icon.ico" --name "PANACEA" panacea-gui.py
+            pyinstaller_cmd: pyinstaller --noconsole --onefile --icon="assets/icon.ico" --hidden-import=PIL._tkinter_finder --name "PANACEA" panacea-gui.py
           - os: ubuntu-latest
             artifact_name: panacea-linux
-            pyinstaller_cmd: pyinstaller --noconsole --onefile --name "PANACEA" panacea-gui.py
+            pyinstaller_cmd: pyinstaller --noconsole --onefile --hidden-import=PIL._tkinter_finder --name "PANACEA" panacea-gui.py
 
     steps:
       - name: Checkout Repository
